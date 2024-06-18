@@ -2,6 +2,7 @@ Flask
 Flask-SocketIO
 Flask-JWT-Extended
 Flask-Bcrypt
+flask-cors
 dnspython
 python-dotenv
 pymongo

@@ -4,6 +4,7 @@ from flask_jwt_extended import decode_token
 from functools import wraps
 from dotenv import load_dotenv
 import os
+from flask_cors import CORS
 
 from extensions import jwt, socketio, bcrypt
 from database import db
@@ -74,6 +75,8 @@ def create_app():
     socketio.on_namespace(ChatNamespace('/chat'))
 
     app.template_folder = 'templates'
+
+    CORS(app)
 
     @app.route('/')
     def home():
