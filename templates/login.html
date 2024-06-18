@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6c2beb, #8f2ced, #b630ed);
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-control {
+            border-radius: 5px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 90%;
+        }
+        .form-control::placeholder {
+            color: #aaa;
+        }
+        .btn-primary {
+            border-radius: 5px;
+            background: linear-gradient(to right, #8f2ced, #b630ed);
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #b630ed, #8f2ced);
+        }
+        .toggle-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6c2beb;
+            cursor: pointer;
+        }
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 id="form-title">Login</h2>
+            </div>
+            <div class="card-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="login-username" placeholder="Type your username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="login-password" placeholder="Type your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </form>
+
+                <form id="register-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="register-username" placeholder="Type your username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="register-password" placeholder="Type your password" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" class="form-control" id="register-email" placeholder="Type your email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Register</button>
+                </form>
+
+                <div class="toggle-link" id="toggle-link" onclick="toggleForms()">Don't have an account? Register here</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleForms() {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const formTitle = document.getElementById('form-title');
+            const toggleLink = document.getElementById('toggle-link');
+
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                formTitle.textContent = 'Login';
+                toggleLink.textContent = "Don't have an account? Register here";
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                formTitle.textContent = 'Register';
+                toggleLink.textContent = "Already have an account? Login here";
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.access_token) {
+                    localStorage.setItem('jwtToken', data.access_token);
+                    window.location.href = '/';  // Redirect to home after successful login
+                } else {
+                    alert('Login failed: ' + data.msg);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const email = document.getElementById('register-email').value;
+
+            fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'User created successfully') {
+                    alert('Registration successful, please login.');
+                    toggleForms(); // Switch to login form
+                } else {
+                    alert('Registration failed: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

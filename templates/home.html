@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Select or Create a Room</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .btn-primary,
+        .btn-success,
+        .btn-info {
+            border-radius: 5px;
+            background: linear-gradient(to right, #8f2ced, #b630ed);
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+        .btn-primary:hover,
+        .btn-success:hover,
+        .btn-info:hover {
+            background: linear-gradient(to right, #7c20c2, #9f1ecc);
+        }
+        .logout-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+        .btn-md {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+        .chat-bot-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .chat-bot-container h3 {
+            margin-bottom: 1rem;
+            color: #8f2ced;
+        }
+        .chat-bot-input-box {
+            height: 50px;
+        }
+        .chat-output {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        .chat-output div {
+            margin-bottom: 0.5rem;
+        }
+        .chat-output div:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logout-container">
+            <button class="btn btn-danger btn-md" onclick="logout()">Logout</button>
+        </div>
+        <h2 class="text-center mb-4">Select or Create a Room</h2>
+
+        <div class="form-group">
+            <label for="roomSelect">Select Room:</label>
+            <select id="roomSelect" class="form-control">
+                <option value="">Select a room...</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-primary btn-block" onclick="selectRoom()">Join Room</button>
+        </div>
+
+        <hr>
+
+        <div id="createRoomForm">
+            <form id="createForm">
+                <div class="form-group">
+                    <label for="roomName">Create New Room:</label>
+                    <input type="text" id="roomName" class="form-control" placeholder="Enter room name">
+                </div>
+
+                <button type="submit" class="btn btn-success btn-block">Create Room</button>
+            </form>
+        </div>
+
+        <div class="chat-bot-container">
+            <h3><i class="fas fa-robot"></i> Chat with Bot</h3>
+            <div class="chat-output" id="chatOutput"></div>
+            <div class="form-group">
+                <label for="chatInput">Type your message:</label>
+                <div class="input-group">
+                    <input type="text" id="chatInput" class="form-control chat-bot-input-box" placeholder="Type your message...">
+                    <div class="input-group-append">
+                        <button class="btn btn-info" onclick="sendMessageToBot()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getJWTToken() {
+            return localStorage.getItem('jwtToken');
+        }
+
+        function setJWTTokenCookie() {
+            const token = getJWTToken();
+            if (token) {
+                document.cookie = `access_token=${token};path=/;`;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('jwtToken'); // Remove the JWT token from localStorage
+            document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+            // Clear all other cookies
+            document.cookie.split(";").forEach(function(c) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            window.location.href = '/auth/login'; // Redirect to the login page
+        }
+
+        function fetchAvailableRooms() {
+            const token = getJWTToken();
+            if (!token) {
+                alert('You are not logged in. Please log in first.');
+                window.location.href = '/auth/login'; // Redirect to login page if not authenticated
+                return;
+            }
+
+            fetch('/chat/rooms', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch rooms');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const roomSelect = document.getElementById('roomSelect');
+                roomSelect.innerHTML = '<option value="">Select a room...</option>'; // Reset dropdown
+                data.rooms.forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room.id;
+                    option.textContent = room.name;
+                    roomSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                alert('Failed to fetch rooms. Please Login again.');
+                window.location.href = `/auth/login`;
+            });
+        }
+
+        function selectRoom() {
+            const selectedRoomId = document.getElementById('roomSelect').value;
+            setJWTTokenCookie(); // Set the JWT as a cookie
+            if (selectedRoomId) {
+                fetch(`/chat/room/${selectedRoomId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getJWTToken()}`
+                    } // Include cookies in the request
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Room not found');
+                    }
+                    window.location.href = `/chat/room/${selectedRoomId}`;
+                })
+                .catch(error => {
+                    console.error('Error selecting room:', error);
+                    alert('Room not found. Please select a valid room.');
+                });
+            } else {
+                alert('Please select a room.');
+            }
+        }
+
+        document.getElementById('createForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const roomName = document.getElementById('roomName').value;
+            const token = getJWTToken();
+            setJWTTokenCookie();
+
+            if (!token) {
+                alert('You are not logged in. Please log in first.');
+                window.location.href = '/auth/login';
+                return;
+            }
+
+            fetch('/chat/room', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name: roomName })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Unauthorized');
+                    }
+                    throw new Error('Failed to create room');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const roomId = data.room_id;
+                // Redirect to the chat room page with the room ID
+                window.location.href = `/chat/room/${roomId}`;
+            })
+            .catch(error => {
+                console.error('Error creating room:', error);
+                if (error.message === 'Unauthorized') {
+                    alert('Your session has expired. Please log in again.');
+                    window.location.href = '/auth/login';
+                } else {
+                    alert('Failed to create room. Please try again later.');
+                }
+            });
+        });
+
+        function showChatBot() {
+            const chatBotContainer = document.getElementById('chatBotContainer');
+            chatBotContainer.style.display = 'block';
+        }
+
+        function sendMessageToBot() {
+            const chatInput = document.getElementById('chatInput');
+            const userMessage = chatInput.value.trim();
+            const chatOutput = document.getElementById('chatOutput');
+
+            if (userMessage) {
+                chatOutput.innerHTML += `<div>User: ${userMessage}</div>`;
+                chatInput.value = '';
+
+                fetch('chat/bot/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getJWTToken()}`
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    if (data.error) {
+                        chatOutput.innerHTML += `<div>Bot: ${data.error}</div>`;
+                    } else {
+                        const botResponse = data.response;
+                        chatOutput.innerHTML += `<div>Bot: ${botResponse}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    chatOutput.innerHTML += `<div>Bot: Failed to get response from the API.</div>`;
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchAvailableRooms);
+    </script>
+</body>
+</html>
