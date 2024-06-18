@@ -1,0 +1,9 @@
+Flask
+Flask-SocketIO
+Flask-JWT-Extended
+Flask-Bcrypt
+dnspython
+python-dotenv
+pymongo
+google-generativeai
+bson
