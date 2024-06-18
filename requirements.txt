@@ -6,5 +6,7 @@ dnspython
 python-dotenv
 pymongo
 google-generativeai
-bson
+Flask_PyMongo
 gunicorn
+Jinja2
+Werkzeug>=2.1.2

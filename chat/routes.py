@@ -1,13 +1,11 @@
 from flask import Blueprint, request, jsonify, redirect, url_for, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity, decode_token
 from flask_socketio import join_room, leave_room, emit
-from bson import ObjectId
+from flask_pymongo import ObjectId
 from datetime import datetime
 from app import db, socketio, jwt_required_cookie # Importing socketio instance from app
-import jwt
 from dotenv import load_dotenv
 import os
-from werkzeug.utils import secure_filename
 import google.generativeai as genai
 load_dotenv()
 
