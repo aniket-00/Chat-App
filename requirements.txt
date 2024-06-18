@@ -7,3 +7,4 @@ python-dotenv
 pymongo
 google-generativeai
 bson
+gunicorn
