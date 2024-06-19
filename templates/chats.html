@@ -107,7 +107,9 @@
     const socket = io('/chat', {
       extraHeaders: {
         Authorization: 'Bearer ' + getJWTToken()
-      }
+      },
+      pingInterval: 25000, // 25 seconds
+      pingTimeout: 60000,
     });
 
     function displayMessage(message) {
@@ -197,8 +199,13 @@
       console.log('Connected to server');
       document.body.classList.remove('disconnected');
       const room_id = '{{ room_id }}';
-      console.log(`Joining room: ${room_id}`);
       socket.emit('join', { room: room_id });
+
+      // Set up the ping mechanism
+      const pingInterval = setInterval(() => {
+        console.log('Sending ping');
+        socket.emit('ping');
+      }, 30000); // Send a 'ping' event every 30 seconds
     });
 
     socket.on('status', (data) => {
@@ -227,6 +234,10 @@
 
     socket.on('connect_error', (error) => {
       console.log('Connection Error:', error);
+    });
+
+    socket.on('pong', (data) => {
+      console.log('Received pong from server');
     });
 
     socket.on('error', (error) => {

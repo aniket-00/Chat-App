@@ -66,7 +66,7 @@ def create_app():
     app.register_blueprint(chat_bp)
 
     # Initialize SocketIO with the app
-    socketio.init_app(app)
+    socketio.init_app(app, cors_allowed_origins="*", ping_interval=25, ping_timeout=60)
 
     # Import SocketIO event handlers
     from chat.events import ChatNamespace

@@ -19,6 +19,10 @@ class ChatNamespace(Namespace):
         print("Client disconnected")
 
     @jwt_required()
+    def on_ping(self):
+        emit('pong')
+
+    @jwt_required()
     def on_join(self, data):
         user_id = get_jwt_identity()
         user = User.get_by_id(user_id)
