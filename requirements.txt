@@ -3,6 +3,7 @@ Flask-SocketIO
 Flask-JWT-Extended
 Flask-Bcrypt
 flask-cors
+flask-compress
 dnspython
 python-dotenv
 pymongo

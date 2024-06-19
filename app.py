@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()
+
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, disconnect
 from flask_jwt_extended import decode_token
@@ -5,6 +8,7 @@ from functools import wraps
 from dotenv import load_dotenv
 import os
 from flask_cors import CORS
+from flask_compress import Compress
 
 from extensions import jwt, socketio, bcrypt
 from database import db
@@ -32,6 +36,9 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+
+    # Enable compression
+    Compress(app)
 
     # Initialize extensions
     jwt.init_app(app)
@@ -66,7 +73,7 @@ def create_app():
     app.register_blueprint(chat_bp)
 
     # Initialize SocketIO with the app
-    socketio.init_app(app, cors_allowed_origins="*", ping_interval=25, ping_timeout=60)
+    socketio.init_app(app, cors_allowed_origins="*", async_mode='gevent')
 
     # Import SocketIO event handlers
     from chat.events import ChatNamespace
