@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
+            background: linear-gradient(110deg, #6c2beb, #8f2ced, #b630ed);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,10 +18,13 @@
         }
         .container {
             max-width: 600px;
-            background: #fff;
+            background: #242323;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .title {
+            color:#8f2ced
         }
         .form-group {
             margin-bottom: 1.5rem;
@@ -57,7 +60,7 @@
             margin-top: 2rem;
             padding: 1rem;
             border-radius: 10px;
-            background-color: #f8f9fa;
+            background-color: #252425;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .chat-bot-container h3 {
@@ -88,7 +91,7 @@
         <div class="logout-container">
             <button class="btn btn-danger btn-md" onclick="logout()">Logout</button>
         </div>
-        <h2 class="text-center mb-4">Select or Create a Room</h2>
+        <h2 class="text-center mb-4 title">Select or Create a Room</h2>
 
         <div class="form-group">
             <label for="roomSelect">Select Room:</label>
@@ -297,6 +300,13 @@
                 });
             }
         }
+
+        document.getElementById('chatInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessageToBot();
+        }
+        });
 
         document.addEventListener('DOMContentLoaded', fetchAvailableRooms);
     </script>

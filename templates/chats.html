@@ -8,20 +8,20 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+      background: linear-gradient(to right,#7641e0, #843ac9, #9c41c0);
       padding: 20px;
     }
     .container {
       max-width: 800px;
       margin: auto;
-      background: #fff;
+      background: #242323;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .status-message {
       text-align: center;
-      color: #888;
+      color: #000000;
       font-style: italic;
       margin: 10px 0;
     }
@@ -36,6 +36,20 @@
       text-align: center;
       padding: 5px;
     }
+    .title {
+        color:#8f2ced
+    }
+    .btn-primary {
+        border-radius: 5px;
+        background: linear-gradient(to right, #2c69ed, #7d22b1);
+        color: #ffffff;
+        border: none;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        width: 100%;
+    }
     #messages {
       display: flex;
       flex-direction: column;
@@ -49,7 +63,7 @@
     }
     .message.self {
       align-self: flex-end;
-      background-color: #DCF8C6;
+      background-color: #adcf93;
       border-bottom-right-radius: 0;
     }
     .message.other {
@@ -75,7 +89,7 @@
     }
     .status-message {
       align-self: center;
-      background-color: #f0f0f0;
+      background-color: #00db42;
       border-radius: 10px;
       padding: 5px 10px;
       margin: 10px 0;
@@ -86,7 +100,7 @@
   <div class="container">
     
     <div class="d-flex justify-content-between align-items-center">
-      <h2>Chat Room: <span id="roomName"></span></h2>
+      <h2 class="title">Chat Room: <span id="roomName"></span></h2>
       <button id="leaveRoomBtn" class="btn btn-danger" onclick="leaveRoom()">Leave Room</button>
     </div>
 
